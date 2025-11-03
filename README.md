@@ -63,8 +63,4 @@
   5. Seed initial topics/questions or load fixtures as required.
 
 
-  ## Roadmap Ideas
 
-  - Admin endpoints for question authoring and exam scheduling.
-  - Websocket or polling endpoint for live leaderboard updates during exams.
-  - More granular analytics dashboards for users and instructors.
