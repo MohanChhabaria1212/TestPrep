@@ -51,16 +51,64 @@
   - `UserExamTypeProfile` & `UserTopicPerformanceProfile` – Historical performance aggregates.
   - `PastExamStats` – Stores prior-year rank vs. score/percentile curves for prediction.
 
-  ## Running Locally
+## Running Locally
 
-  1. Install dependencies: `pip install -r requirements.txt`
-  2. Configure environment variables (database, Redis URL, etc.) via `.env`
-  3. Run migrations: `python manage.py migrate`
-  4. Start services:
-     - Django app: `python manage.py runserver`
-     - Celery worker: `celery -A testprep worker -l info`
-     - Celery beat (optional for scheduled jobs): `celery -A testprep beat -l info`
-  5. Seed initial topics/questions or load fixtures as required.
+### 1. Install system prerequisites
 
+- Python 3.10+ with `pip` and `virtualenv`
+- PostgreSQL 13+ (local server or Docker)
+- Redis (required for Celery; optional if you only need the Django app)
+
+On macOS with Homebrew:
+
+```bash
+brew install postgresql redis
+brew services start postgresql
+brew services start redis
+```
+
+### 2. Create and activate a virtualenv
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### 3. Provision the PostgreSQL database
+
+Create a dedicated database and user for the project. Adjust names/passwords as desired.
+
+```bash
+createdb testprep
+createuser testprep_user --pwprompt
+psql -d postgres -c "GRANT ALL PRIVILEGES ON DATABASE testprep TO testprep_user;"
+```
+
+### 4. Configure environment variables
+
+Duplicate `.env.example` (or create a new `.env`) and set the connection details, not required in this case but has to be done for security reasons.:
+
+```env
+DJANGO_SECRET_KEY=replace-me
+DATABASE_URL=postgres://testprep_user:change-me@localhost:5432/testprep
+CELERY_BROKER_URL=redis://localhost:6379/0
+```
+
+
+### 5. Apply database migrations and create a superuser
+
+```bash
+python manage.py migrate
+python manage.py createsuperuser
+```
+
+### 6. Run the services
+
+- Start the Django dev server: `python manage.py runserver`
+- Start a Celery worker: `celery -A testprep worker -l info`
+- (Optional) Start Celery beat for scheduled jobs: `celery -A testprep beat -l info`
+
+You should now be able to sign in at `http://127.0.0.1:8000/admin/` using the superuser credentials and begin creating exams, questions, and assignments.
 
 
